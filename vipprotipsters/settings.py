@@ -146,9 +146,9 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 PAYPAL_ACCESS = env.str("PAYPAL_ACCESS")
-CSV_STATIC_URL = str(BASE_DIR) + r'/static/csv/'
-PAID_CSV_STATIC_URL = str(BASE_DIR) + r'/static/paid/'
-RESULT_CSV_STATIC_URL = str(BASE_DIR) + r'/static/result/'
+CSV_STATIC_URL = str(BASE_DIR) + r'/datastatic/csv/'
+PAID_CSV_STATIC_URL = str(BASE_DIR) + r'/datastatic/paid/'
+RESULT_CSV_STATIC_URL = str(BASE_DIR) + r'/datastatic/result/'
 NO_OF_CSV_ALLOWED = 30
 MINIMUM_ODDS = "2.7"
 
