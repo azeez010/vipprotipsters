@@ -1,4 +1,5 @@
-import datetime 
+import datetime, git
+from requests import request
 from tips import models, mixins
 from django.shortcuts import render
 from tips import utils
@@ -15,6 +16,20 @@ def save_csv(request):
         utils.handle_uploaded_file(games, name, category)
         utils.delete_outdate_csv(category)
         return render(request, 'free_tips.html', {})
+
+#Route for the GitHub webhook
+@csrf_exempt
+def git_update(request):
+    if request.method == "POST":
+        repo = git.Repo('./vipprotipsters')
+        origin = repo.remotes.origin
+        repo.create_head('master',
+        origin.refs.master).set_tracking_branch(origin.refs.master).checkout()
+        #repo.heads.master.set_tracking_branch(origin.refs.master)
+        #all note
+        origin.pull()
+        return '', 200
+
 
 @csrf_exempt
 def result(request, *args, **kwargs):

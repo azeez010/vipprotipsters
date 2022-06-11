@@ -7,6 +7,7 @@ urlpatterns = [
     path('tipster/<int:pk>', views.Tipster.as_view(), name="tipster"),
     path('payment/', views.Payment.as_view(), name="payment"),
     path('login-user', views.login_view, name="login-view"),
+    path('git-update', func_views.git_update, name="git-update"),
     path('signup-user', views.signup_view, name="signup-view"),
     path('', include('django.contrib.auth.urls')),
     path('save', func_views.save_csv, name="save-csv"),
