@@ -23,14 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-cyv=0qlwuc7_9!wfdj%__gu9y0x)jdvm_5$qiaf34joo)yclj*'
+SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG_MODE")
 
-ALLOWED_HOSTS = ["127.0.0.1", "59f7-105-112-160-83.eu.ngrok.io"]
-
-CSRF_TRUSTED_ORIGINS = ["https://59f7-105-112-160-83.eu.ngrok.io"]
+ALLOWED_HOSTS = ["127.0.0.1", "vipprotipsters.com", "www.vipprotipsters.com"]
+CSRF_TRUSTED_ORIGINS = ["https://vipprotipsters.com", "https://www.vipprotipsters.com"]
 # Application definition
 
 AUTH_USER_MODEL = 'tips.User'
@@ -157,7 +156,5 @@ MINIMUM_ODDS = "2.7"
 ADMIN_SITE_HEADER = "VIP TIPSTERS ADMIN"
 
 # _________________ PAYPAL ____________________
-PAYPAL_RECEIVER_EMAIL = 'sb-hq43d316952154@business.example.com'
-# sb-hq43d316952154@business.example.com 
-# 'nwodopeterejiofor@gmail.com'
-PAYPAL_TEST = True
+PAYPAL_RECEIVER_EMAIL = env.str("PAYPAL_ACCESS")
+PAYPAL_TEST = env.bool("PAYPAL_TEST"),
