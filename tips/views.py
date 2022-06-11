@@ -144,14 +144,18 @@ def select_tips(request, *args, **kwargs):
     utils.generate_predictions()
     return render(request, template_name, {"tips": tips})
 
-            
-def getc(request, *args, **kwargs):
-    template_name = "free_tips.html"
-    date = request.GET.get("date")
+def paid_view(request, *args, **kwargs):
+    template_name = "paid_tips.html"
     
     tipsters = models.Tipsters.objects.all()
     sign_up = forms.SignUp()
     login = forms.Login()
+    return render(request, template_name, {"sign_up": sign_up, "login": login, "tipsters": tipsters })
+
+            
+def freetips_view(request, *args, **kwargs):
+    template_name = "free_tips.html"
+    date = request.GET.get("date")
     
     cur_date_time = datetime.datetime.now()
     page_date = cur_date_time.strftime(r'%A, %d %B %Y')
@@ -164,7 +168,7 @@ def getc(request, *args, **kwargs):
             date_time = datetime.datetime.strptime(date, r'%Y-%m-%d')
             prev_pred = date_time - one_day_diff
             next_pred = date_time + one_day_diff
-            all_files = utils.get_all_csv()
+            all_files = utils.get_all_csv("freebet")
             if f"{prev_pred.date()}-freebet.csv" in all_files:
                 prev = f"/?date={prev_pred.date()}"
             if f"{next_pred.date()}-freebet.csv" in all_files:
@@ -174,12 +178,13 @@ def getc(request, *args, **kwargs):
             page_date = date_time.strftime(r'%A, %d %B %Y')
                 
         except Exception as exc:
+            print(exc)
             now = cur_date_time.date()
             name = f"{now}-freebet.csv"
             prev_pred = cur_date_time - one_day_diff
             next_pred = cur_date_time  + one_day_diff
             path = Path(settings.CSV_STATIC_URL + f"{now}-freebet.csv")
-            all_files = utils.get_all_csv()
+            all_files = utils.get_all_csv("freebet")
             if f"{prev_pred.date()}-freebet.csv" in all_files:
                 prev = f"/?date={prev_pred.date()}"
             if f"{next_pred.date()}-freebet.csv" in all_files:
@@ -209,7 +214,7 @@ def getc(request, *args, **kwargs):
         "next": next,
         "page_date": page_date
     }   
-    return render(request, template_name, {"sign_up": sign_up, "login": login, "tipsters": tipsters, "free_tips": free_tips, **next_and_prev} )
+    return render(request, template_name, {"free_tips": free_tips, **next_and_prev} )
 
 # class ManageGames(DetailView, ListView, mixins.CSVmixin):
 #     def get(self, request, *args, **kwargs):

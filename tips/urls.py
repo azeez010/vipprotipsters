@@ -3,7 +3,8 @@ from tips import views, func_views, payment
 
 
 urlpatterns = [
-    path('', views.getc, name="home"),
+    path('', views.freetips_view, name="home"),
+    path('tipsters', views.paid_view, name="paid"),
     path('tipster/<int:pk>', views.Tipster.as_view(), name="tipster"),
     path('payment/', views.Payment.as_view(), name="payment"),
     path('login-user', views.login_view, name="login-view"),
