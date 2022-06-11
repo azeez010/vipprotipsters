@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p>Subscription page</p>
+    {% for tipsters in sub_ticket.tipsters.all %}
+    {{ tipsters}}
+        {% for ticket in tipsters.tickets.all %}
+            <p>{{ ticket }}</p>    
+        {% endfor %}
+    {% endfor %}
+{% endblock%}

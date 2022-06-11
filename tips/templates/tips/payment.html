@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div>
+    <form action="">
+        {% for tipster in tipsters_list %}
+            <div>
+                <input type="checkbox" class="select" tipster_id="{{ tipster.id}}">
+                <img src="{{ tipster.country.flag }}" alt="">
+                <p>{{ tipster.country.name }}</p>
+                <p>{{ tipster.name }}</p>
+                <!-- <a href="{{ tipster.get_absolute_url }}">view more</a> -->
+            </div>
+        {% endfor %}
+    </form>
+    <div>
+        <h1>Discount</h1>
+        <p>For each {{ settings.discount }} tipsters you will receive 1 for free.</p>
+    </div>
+    <div>
+        <select name="types" id="types">
+            {% for type in subscription_types %}
+                <option value="{{ type.id }}|{{ type.price }}">{{ type }}</option>
+            {% endfor %}
+        </select>
+        <div>
+            <p>Total: {{ settings.currency }} <span id="total">0</span></p>
+            <p>Selected tipsters: <span id="tipsters-count">0</span> - {{ settings.currency }} <span id="all-total">0</span></p>
+            <p>Free tipsters: <span id="free-tipsters">0</span> - {{ settings.currency }} <span id="discount-total"></span></p> 
+        </div>
+        <h4>Pay with PayPal</h4>
+        {{ form.render }}
+        <!-- <button id="button" class="bg-{{ settings.theme }}-500 text-white px-2- px-1">Pay with {{ settings.payment }}</button> -->
+    </div>
+</div>
+<script>
+    let total_tipsters = 0
+    let tipstersId = []
+    let date = ""
+    let discount = parseInt("{{ settings.discount }}")
+    let price = parseInt($("#types").val())
+
+    values = $("#types").val().split("|")
+    subscription_id = values[0]
+    price = parseInt(values[1]);
+
+    
+    $('input[type="image"]').attr({"disabled": true})
+
+    $('#types').on('change', function(){
+        values = $("#types").val().split("|")
+        subscription_id = values[0]
+        price = parseInt(values[1]);
+        updateCheckChanges(total_tipsters);
+    })
+
+    $('.select').on('change', function(){ // on change of state
+        let tipster = this.getAttribute("tipster_id")
+        if(this.checked) // if changed state is "CHECKED"
+        {
+            tipstersId.push(tipster)
+            ++total_tipsters;
+            updateCheckChanges(total_tipsters);
+        }
+        else
+        {
+            const index = tipstersId.indexOf(tipster);
+            if (index > -1) 
+            {
+                tipstersId.splice(index, 1); // 2nd parameter means remove one item only
+            }
+            --total_tipsters;
+            updateCheckChanges(total_tipsters);
+        }
+    })
+    
+    function updateCheckChanges(total_tipsters)
+    {
+        let customData = "";
+        if(total_tipsters > 0 )
+        {
+            $('#button').attr({"disable": false})
+        }
+        let get_discount = Math.floor(total_tipsters / discount);
+        let total = total_tipsters * price;
+        let total_discount = get_discount * price
+        let paying_total = (total_tipsters - get_discount) * price 
+        $("#tipsters-count").text(total_tipsters);
+        $("#free-tipsters").text(get_discount);
+        $("#total").text(paying_total)
+        $("#all-total").text(total)
+        $("#discount-total").text(total_discount)
+        
+        $("#id_amount").val(paying_total)
+        if(tipstersId.length > 0) 
+        {
+            $('input[type="image"]').attr({"disabled": false})
+            customData = tipstersId.join("|") + "|" + subscription_id + "|" + "{{user.id}}"
+        }
+        console.log(customData)
+        $("#id_custom").val(customData) 
+
+
+     }
+</script>
+{% endblock %}

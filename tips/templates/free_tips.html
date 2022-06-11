@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
+    <title>Free tips</title>
+</head>
+<body>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}{% endif %}
+            {{ message | safe }}
+        </p>
+    {% endfor %}
+    </div>
+{% endif %}
+{% if user.is_authenticated %}
+    <p>Welcome {{ user.username}}</p>
+    <p><a href="{% url 'logout' %}" class="">logout</a></p>
+{% else %}
+    <form method="post" action="{% url 'login-view' %}">
+        {% csrf_token %}
+        {{ login.as_p }}
+        <input type="submit" value="Login">
+    </form>
+    <form method="post" action="{% url 'signup-view' %}">
+        {% csrf_token %}
+        {{ sign_up.as_p }}
+        <input type="submit" value="Save">
+    </form>
+{% endif %}
+{% for tipster in tipsters %}
+    <div>
+        <img src="{{ tipster.country.flag }}" alt="">
+        <p>{{ tipster.country.name }}</p>
+        <p>{{ tipster.name }}</p>
+        {% for ticket in tipster.tickets.all %}
+            <p>{{ ticket.team_name }}</p>
+            <p>{{ ticket.date_added }}</p>
+            <p>{{name}} </p>
+        {% endfor %}
+        <a href="{% if user.is_authenticated %}{% url 'payment' %} {% else %}#{% endif %}" {% if user.is_anonymous %}onclick="notifyLogin()"{% endif %}>Subscribe</a>
+        <a href="{{ tipster.get_absolute_url }}">view more</a>
+    </div>
+{% endfor %}
+<div>
+    
+    <a href="{% if prev and free_tips %}{{ prev }}{% else %} javascript:void(0) {% endif %}">prev</a>
+    <a href="{% if next %}{{ next }}{% else %} javascript:void(0) {% endif %}">next</a>
+    <p>{{ page_date }}</p>
+    <table>
+        <thead>
+            <!-- tr -->
+        </thead>
+        {% for tip in free_tips %}
+            <div>
+                <img src="{{ tip.0}}" alt="">
+                <span>{{tip.1}}</span>
+                <span>{{tip.2}}</span>
+                <span>{{tip.3}}</span>
+            </div>
+        {% empty %}
+            <p>No predictions</p>
+        {% endfor %}
+    </table>
+</div>
+</body>
+<script>
+    function notifyLogin()
+    {
+        alert("login first")
+    }
+</script>
+</html>

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Select tips{% endblock %}
+{% block content %}
+    <p id="predictions-count">Total prediction selected is 0</p>
+    <form method="POST">
+        {% csrf_token %}
+        {% for tip in tips %}
+            <div>
+                <input type="checkbox" {% if tip.0 == 'True' %} checked {% endif %} class="select {% if tip.0 == 'True' %} checked {% endif %}" name="{{ tip.2 }}" value="{{ tip.2 }} {{ tip.3 }}" id="">
+                <img src="{{ tip.1 }}" alt="">
+                {{ tip.0 }}
+                <span>{{ tip.2 }}</span>
+                <span>{{tip.3}}</span>
+                <span>{{tip.4}}</span>
+            </div>
+        {% endfor %}
+        <button id="button">Okay</button>
+    </form>
+    <script>
+    let total_predictions = $(".checked").length
+    $('#button').attr({"disable": true})
+    $("#predictions-count").text(`Total prediction selected is ${total_predictions}`);
+
+    $('.select').on('change', function(){ // on change of state
+        if(this.checked) // if changed state is "CHECKED"
+        {
+            ++total_predictions;
+            updateCheckChanges(total_predictions);
+        }
+        else
+        {
+            --total_predictions;
+            updateCheckChanges(total_predictions);
+        }
+     })
+
+     function updateCheckChanges(total_predictions)
+     {
+        if(total_predictions > 0 )
+        {
+            $('#button').attr({"disable": false})
+        }
+        $("#predictions-count").text(`Total prediction selected is ${total_predictions}`);
+    }
+    </script>
+{% endblock %}
