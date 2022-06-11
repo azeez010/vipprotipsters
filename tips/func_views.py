@@ -1,10 +1,11 @@
+from django.http import JsonResponse
 import datetime, git
 from requests import request
 from tips import models, mixins
 from django.shortcuts import render
 from tips import utils
 from django.views.decorators.csrf import csrf_exempt
-import orjson
+import orjson, os
 
 @csrf_exempt
 def save_csv(request):
@@ -21,6 +22,7 @@ def save_csv(request):
 @csrf_exempt
 def git_update(request):
     if request.method == "POST":
+        os.chdir("/home/turkeyapp")
         repo = git.Repo('./vipprotipsters')
         origin = repo.remotes.origin
         repo.create_head('master',
@@ -28,7 +30,8 @@ def git_update(request):
         #repo.heads.master.set_tracking_branch(origin.refs.master)
         #all note
         origin.pull()
-        return '', 200
+        # return 'success', 200
+        return JsonResponse({'success':'True'})
 
 
 @csrf_exempt
