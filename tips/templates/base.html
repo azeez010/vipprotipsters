@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/static/image/icon.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" integrity="sha512-wnea99uKIC3TJF7v4eKk4Y+lMz2Mklv18+r4na2Gn1abDRPPOeef95xTzdwGD9e6zXJBteMIhZ1+68QC5byJZw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    {% load static %}
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-    <header class="text-center">
-        <a href="{% url 'home' %}"><img src="/static/image/icon.png" alt=""></a>
-
-    </header>
-    <main>
-        <a href="{% url 'home' %}">Free</a>
-        <a href="{% url 'paid' %}">Paid</a>
-        {% block content %}
-        {% endblock %}
-    </main>
-    <footer>
-        <hr>
-        <p>Contact us: please send email to {{settings.email}}</p>
-    </footer>
+    <div id="container" class="w-4/5 md:w-1/2  m-auto">
+        <header class="text-center">
+            <a href="{% url 'home' %}"><img src="/static/image/icon.png" alt=""></a>
+    
+        </header>
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+        <footer>
+            <br>
+            <br>
+            <hr>
+            <div>
+                <p class="text-center mt-1">Contact us: please send email to {{settings.email}}</p>
+            </div>
+        </footer>
+    </div>
 </body>
 </html>

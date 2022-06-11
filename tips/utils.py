@@ -23,7 +23,7 @@ def handle_uploaded_file(f, name, category):
 def prepare_csv(data):
     arr = []
     for line in data:
-        _line = [line.get('image'), line.get('league_name'), line.get('team_name'), line.get('tips')]
+        _line = [line.get('image'), line.get('league_name'), line.get('team_name'), line.get('tips'), line.get("time"), line.get("odd_1"), line.get("odd_2"), line.get("odd_3")]
         arr.append(_line)
     return arr
 
