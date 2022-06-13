@@ -17,9 +17,9 @@
         {% include 'include/toggles.html' %}
         <hr>
         <div class="flex justify-between my-2">
-            <p class="px-6 py-3 bg-{{settings.theme}}-500 text-white"><a href="{% if prev and free_tips %}{{ prev }}{% else %} javascript:void(0) {% endif %}">prev</a></p>
-            <p class="text-xl mt-2 font-semibold">{{ page_date }}</p>
-            <p class="px-6 py-3 bg-{{settings.theme}}-500 text-white"><a href="{% if next %}{{ next }}{% else %} javascript:void(0) {% endif %}">next</a></p>
+            <p class="px-2 py-1 md:px-6 md:py-3 bg-{{settings.theme}}-500 text-white"><a href="{% if prev and free_tips %}{{ prev }}{% else %} javascript:void(0) {% endif %}">prev</a></p>
+            <p class="text-md md:text-xl mt-2 font-semibold">{{ page_date }}</p>
+            <p class="px-2 py-1 md:px-6 md:py-3 bg-{{settings.theme}}-500 text-white"><a href="{% if next %}{{ next }}{% else %} javascript:void(0) {% endif %}">next</a></p>
         </div>
         <hr>
         <table class="w-full my-4">
@@ -34,7 +34,7 @@
             <tbody>
                 {% for tip in free_tips %}
                     <tr>
-                        <td class="px-2 py-3"><img class="h-5 w-8 md:h-7 md:w-8"src="{{ tip.0}}" alt=""></td>
+                        <td class="px-2 py-3"><img class="h-5 w-10 md:h-7 md:w-8"src="{{ tip.0}}" alt=""></td>
                         <td class="hidden md:table-cell text-sm md:text-lg px-2">{{tip.1}}</td>
                         <td class="text-sm md:text-lg px-2">{{ tip.4 }}</td>
                         <td class="text-sm md:text-lg px-2">{{tip.2}}</td>

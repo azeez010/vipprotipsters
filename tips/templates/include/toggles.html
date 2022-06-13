@@ -1,10 +1,10 @@
 <div class="my-2">
     <hr>
     <div class="flex justify-around my-2">
-        <p><a class="px-6 py-3 bg-{{settings.theme}}-900 text-white block" href="{% url 'home' %}">FREE TIPS</a></p>
-        <p><a class="px-6 py-3 bg-red-600 text-white block" href="{% url 'paid' %}">PAID TIPSTERS</a></p>
+        <p><a class="px-2 py-1 md:px-6 md:py-3 bg-{{settings.theme}}-900 text-white block" href="{% url 'home' %}">FREE TIPS</a></p>
+        <p><a class="px-2 py-1 md:px-6 md:py-3 bg-red-600 text-white block" href="{% url 'paid' %}">PAID TIPSTERS</a></p>
         {% if user.is_superuser %}
-            <p><a class="px-6 py-3 bg-green-600 text-white block" href="{% url 'select-tips' %}">SELECT TIPS</a></p>        
+            <p><a class="px-2 py-1 md:px-6 md:py-3 bg-green-600 text-white block" href="{% url 'select-tips' %}">SELECT TIPS</a></p>        
         {% endif %}
     </div>
     <hr>
