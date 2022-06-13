@@ -1,7 +1,7 @@
 import datetime
 from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, DetailView, ListView, CreateView
+from django.views.generic import DetailView, ListView
 from django.views.decorators.cache import cache_page
 from tips import forms, models, mixins, utils
 from django.conf import settings
@@ -10,7 +10,7 @@ from pathlib import Path
 from django.urls import reverse
 from paypal.standard.forms import PayPalPaymentsForm
 from django.utils.translation import gettext_lazy as _
-from django.contrib.admin.views.decorators import staff_member_required 
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth import get_user_model

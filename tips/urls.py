@@ -1,13 +1,13 @@
 from django.urls import path, include
 from tips import views, func_views, payment
-
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     path('', views.freetips_view, name="home"),
     path('tipsters', views.paid_view, name="paid"),
     path('change-password', views.change_password_view, name="change-password"),
     path('tipster/<int:pk>', views.Tipster.as_view(), name="tipster"),
-    path('payment/', views.Payment.as_view(), name="payment"),
+    path('payment/', login_required(views.Payment.as_view()), name="payment"),
     path('login-user', views.login_view, name="login-view"),
     path('git-update', func_views.git_update, name="git-update"),
     path('signup-user', views.signup_view, name="signup-view"),
