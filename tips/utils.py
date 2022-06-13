@@ -30,7 +30,7 @@ def prepare_csv(data):
 def prepare_forebet_csv(data):
     arr = []
     for line in data:
-        _line = [False, line.get('image'), line.get('team_name'), line.get('predict'), line.get('odds'), line.get('prediction_true'), line.get('full_time_scores')]
+        _line = [False, line.get('image'), line.get('team_name'), line.get('predict'), line.get('odds'), line.get('prediction_true'), line.get('full_time_scores'), line.get('time')]
         arr.append(_line)
     return arr
 
@@ -73,15 +73,19 @@ def generate_predictions():
     else:
         minimum_odds = minimum_odds.value
 
-    minimum_odds_float = float(minimum_odds)        
-    tickets = models.Ticket.objects.filter(date_added=cur_date).all()
+    minimum_odds_float = float(minimum_odds)    
+    cur_date = datetime.now().date()
+    tickets = models.Ticket.objects.all()
     tipsters = models.Tipsters.objects.all()
     for tipster in tipsters:
         total_odds = 1 
         while total_odds < minimum_odds_float:
             ticket = random.choice(tickets)
             total_odds *= ticket.game_odds
-            tipster.tickets.add(ticket)
+            ticket_with_date, _  = models.TicketWithDate.objects.get_or_create(date_added=cur_date, tipsters=tipster)
+            ticket_with_date.ticket.add(ticket)
+        print(total_odds)
+        # print()
    
 # @commit_on_success
 # def lot_of_saves(queryset):

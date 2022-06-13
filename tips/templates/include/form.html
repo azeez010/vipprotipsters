@@ -1,0 +1,37 @@
+<div class="block md:flex md:justify-between">
+    <div class="w-full mx-4">
+        {% if user.is_authenticated %}
+            <p class="text-xl font-semibold my-2">{{ user.username}}</p>
+            <p><a href="mailto:{{ settings.email }}" class="text-lg my-2 px-2 py-1 bg-{{ settings.theme }}-900 text-white hover:bg-gray-800 px-6 inline-block py-2 my-2">SEND US MAIL</a></p>
+            <p><a href="{% url 'logout' %}" class="text-lg my-2 px-2 py-1 bg-{{ settings.theme }}-900 text-white hover:bg-gray-800 px-6 inline-block py-2">logout</a></p>
+        {% else %}
+            <p class="text-gray-800 font-semibold my-2 text-xl">Sign in</p>
+            <form method="post" action="{% url 'login-view' %}">
+                {% csrf_token %}
+                {{ login.as_p }}
+                <input type="submit" class="text-white text-center w-full bg-{{ settings.theme }}-900 hover:bg-gray-800 px-2 py-2 my-2" value="LOGIN">
+            </form>
+        {% endif %}
+    </div>
+    <div class="hidden md:block w-full mx-4">
+        {% include 'include/image_header.html' %}
+    </div>
+    <div class="w-full mx-4">
+        {% if user.is_authenticated %}
+            <p class="text-gray-800 font-semibold mt-3 my-2 text-xl">Change Password</p>
+            <form method="post" action="{% url 'change-password' %}">
+                {% csrf_token %}
+                {{ change_password.as_p }}
+                <input type="submit" class="text-white text-center w-full bg-{{ settings.theme }}-900 hover:bg-gray-800 px-2 py-2 my-2" value="CHANGE PASSWORD">
+            </form>
+        {% else %}
+            <p class="text-gray-800 font-semibold mt-3 my-2 text-xl">Register</p>
+            <form method="post" action="{% url 'signup-view' %}">
+                {% csrf_token %}
+                {{ sign_up.as_p }}
+                <input type="submit" class="text-white text-center w-full bg-{{ settings.theme }}-900 hover:bg-gray-800 px-2 py-2 my-2" value="CREATE ACCOUNT">
+            </form>
+        {% endif %}
+
+    </div>
+</div>

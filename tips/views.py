@@ -1,4 +1,5 @@
-import datetime, random
+import datetime
+from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, DetailView, ListView, CreateView
 from django.views.decorators.cache import cache_page
@@ -12,6 +13,8 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.views.decorators import staff_member_required 
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
+from django.contrib.auth import get_user_model
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -21,11 +24,11 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, "Login Successful")
-            return redirect(reverse("home"))
+            return redirect(reverse("paid"))
 
         else:
             messages.error(request, "wrong password or email Address")
-            return redirect(reverse("home"))
+            return redirect(reverse("paid"))
 
 
 def signup_view(request):
@@ -35,10 +38,31 @@ def signup_view(request):
             user = user_sign_up.save()
             user.set_password(user.password)
             messages.success(request, "Signup Successful")
-            return redirect(reverse("home"))
+            return redirect(reverse("paid"))
         else:
             messages.error(request, f"{user_sign_up.errors}" )
-            return redirect(reverse("home"))
+            return redirect(reverse("paid"))
+
+def change_password_view(request):
+    if request.method == "POST":
+        user_sign_up = forms.ChangePassword(request.POST)
+        if user_sign_up.is_valid():
+            User = get_user_model()
+            user = User.objects.get(id=request.user.id)
+            if user.check_password(user_sign_up.cleaned_data.get("password")):
+                print(user.password)
+                user.set_password(user_sign_up.cleaned_data.get("password"))
+                user.save()
+                update_session_auth_hash(request, user)
+                print(user.password)
+                
+                messages.success(request, "Password Changed Successfully")
+            else:
+                messages.error(request, "Old Password incorrect")
+            return redirect(reverse("paid"))
+        else:
+            messages.error(request, f"{user_sign_up.errors}" )
+            return redirect(reverse("paid"))
 
 def subscription_view(request):
     if request.method == "POST":
@@ -54,50 +78,11 @@ def subscription_view(request):
 
     sub_ticket = models.Subscriptions.objects.filter(user_id=request.user.id).last()
     if sub_ticket: sub_ticket.update_subscription_status()
-    print(sub_ticket.tipsters.all(), "kjsk")
     context = {
         "sub_ticket": sub_ticket
     }
     return render(request, "subscription_page.html", context)
-
-class FreeTipsView(TemplateView):
-    # template_name = 'templates/form_template.html'
-    template_name = "free_tips.html"
-    extra_context = {}
-    @cache_page(60)
-    def get(self, *args, **kwargs):
-        # form = self.form_class(initial=self.initial)
-        # time.sleep(60)
-        ra = random.randrange(0, 1000000000)
-        my_key = f'hello, world! at {ra}'
-        self.extra_context["my_key"] = my_key
     
-    # @method_decorator(getc)
-    # def dispatch(self, *args, **kwargs):
-    # # @cache_page(60)
-    #     return super().dispatch(*args, **kwargs)
-    
-    # def getc(self, request, *args, **kwargs):
-    #     # form = self.form_class(initial=self.initial)
-    #     # time.sleep(60)
-    #     ra = random.randrange(0, 1000000000)
-    #     my_key = f'hello, world! at {ra}'
-        # return render(request, self.template_name, {"my_key": my_key} )
-    # extra_context = {}
-    # my_key = cache.get('my_key')
-    # print(my_key)
-    # if my_key:
-    #     extra_context["my_key"] = my_key 
-    # else:
-    #     time.sleep(60)
-    #     ra = random.randrange(0, 1000000000)
-    #     my_key = f'hello, world! at {ra}'
-    #     cache.set('my_key', my_key, 30)
-    #     extra_context["my_key"] = my_key
-
-    # extra_context["d"] = "my_key"
-# @cache_page(60)
-
 @staff_member_required
 def select_tips(request, *args, **kwargs):
     template_name = "select_tips.html"
@@ -130,8 +115,9 @@ def select_tips(request, *args, **kwargs):
             if obj_data.get("game_odds") != "-":
                 ticket = tickets.create(**obj_data)
                 ticket.save()  
-                
+
         mixins.CSV.addCsv(file_name, folder, csv)
+        utils.generate_predictions()
         return redirect(reverse("select-tips"))
 
     path = Path(settings.PAID_CSV_STATIC_URL + f"{cur_date_time.date()}-paid.csv")
@@ -141,7 +127,6 @@ def select_tips(request, *args, **kwargs):
         tips = mixins.CSV.readCSV(folder, file_name)
     else:
         tips = []
-    utils.generate_predictions()
     return render(request, template_name, {"tips": tips})
 
 def paid_view(request, *args, **kwargs):
@@ -149,8 +134,14 @@ def paid_view(request, *args, **kwargs):
     
     tipsters = models.Tipsters.objects.all()
     sign_up = forms.SignUp()
+    change_password = forms.ChangePassword()
+    
+    all_sub_ticket = models.SubscriptionTicket.objects.all()
     login = forms.Login()
-    return render(request, template_name, {"sign_up": sign_up, "login": login, "tipsters": tipsters })
+    today_date = datetime.datetime.now().date()
+    sub_ticket = models.Subscriptions.objects.filter(user_id=request.user.id).last()
+    if sub_ticket: sub_ticket.update_subscription_status()
+    return render(request, template_name, {"today": today_date, "sign_up": sign_up, "all_sub_ticket": all_sub_ticket, "login": login, "change_password": change_password, "tipsters": tipsters })
 
             
 def freetips_view(request, *args, **kwargs):
@@ -216,18 +207,28 @@ def freetips_view(request, *args, **kwargs):
     }   
     return render(request, template_name, {"free_tips": free_tips, **next_and_prev} )
 
-# class ManageGames(DetailView, ListView, mixins.CSVmixin):
-#     def get(self, request, *args, **kwargs):
-#         self.object = self.get_object()
-#         context = self.get_context_data(object=self.object)
-#         return self.render_to_response(context)
-
-    pass
-
 
 class Tipster(DetailView):
     model = models.Tipsters
 
+    def get_context_data(self, **kwargs):
+        """Insert the single object into the context dict."""
+        sign_up = forms.SignUp()
+        change_password = forms.ChangePassword()
+        
+        login = forms.Login()
+        today_date = datetime.datetime.now().date()
+        sub_ticket = models.Subscriptions.objects.filter(user_id=self.request.user.id).last()
+        if sub_ticket: sub_ticket.update_subscription_status()
+    
+        context = {"sign_up": sign_up, "today": today_date, "login": login, "change_password": change_password}
+        if self.object:
+            context["object"] = self.object
+            context_object_name = self.get_context_object_name(self.object)
+            if context_object_name:
+                context[context_object_name] = self.object
+        context.update(kwargs)
+        return super().get_context_data(**context)
 
 
 class Subscriptions(ListView):

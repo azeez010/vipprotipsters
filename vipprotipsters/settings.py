@@ -28,8 +28,8 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG_MODE")
 
-ALLOWED_HOSTS = ["127.0.0.1", "vipprotipsters.com", "www.vipprotipsters.com"]
-CSRF_TRUSTED_ORIGINS = ["https://vipprotipsters.com", "https://www.vipprotipsters.com"]
+ALLOWED_HOSTS = ["127.0.0.1", "vipprotipsters.com", "www.vipprotipsters.com", "d600-105-112-177-192.eu.ngrok.io"]
+CSRF_TRUSTED_ORIGINS = ["https://vipprotipsters.com", "https://www.vipprotipsters.com", "https://d600-105-112-177-192.eu.ngrok.io"]
 # Application definition
 
 AUTH_USER_MODEL = 'tips.User'

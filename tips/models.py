@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.db import models
 from tips.mixins import BaseModelMixin
 from django.utils.translation import gettext_lazy as _
@@ -52,10 +52,10 @@ class User(AbstractUser):
         verbose_name = _("User")
 
     def __str__(self):
-        return self.username
+        return self.username + " - " + self.email
     
     def __repr__(self):
-        return self.username
+        return self.username + " - " + self.email
 
 
 class Ticket(BaseModelMixin):
@@ -65,17 +65,39 @@ class Ticket(BaseModelMixin):
     tips = models.CharField(_("Tips"),
         blank=False,
         null=False,
-        max_length=50
+        max_length=60
     )
     success = models.BooleanField(_("Did Game success"), default=False)
     played = models.BooleanField(_("Has Game played"), default=False)
     postponed = models.BooleanField(_("Was game cancelled or postponed"), default=False)
     
     class meta:
-        orderings = ['-data_added']
+        orderings = ['data_added']
     
     def __str__(self):
             return self.team_name + " - " + str(self.game_odds)
+
+class TicketWithDate(BaseModelMixin):
+    ticket = models.ManyToManyField(
+        to="tips.Ticket",
+        verbose_name=_("Ticket with Date"),
+        blank=True,
+        related_name="ticket_date",
+    )
+
+    tipsters = models.ForeignKey(
+        to="tips.Tipsters",
+        verbose_name=_("Tipsters"),
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="ticket_with_date",
+    )
+
+    class meta:
+        orderings = ['data_added']
+
+    def __str__(self):
+        return str(self.ticket) + " " + str(self.date_added)
 
 class Tipsters(models.Model):
     country = CountryField()
@@ -83,13 +105,6 @@ class Tipsters(models.Model):
         blank=False,
         null=False,
         max_length=255
-    )
-
-    tickets = models.ManyToManyField(
-        to="tips.Ticket",
-        verbose_name=_("Tickets"),
-        blank=True,
-        related_name="Tickets",
     )
 
     def __str__(self):
@@ -112,7 +127,7 @@ class SubscriptionTicket(BaseModelMixin):
     days = models.IntegerField(blank=False, null=False)
 
     def __str__(self) -> str:
-        return str(self.days) + " Days - " + str(self.price) + " " + self.currency + " per tipster"
+        return str(self.days) + " Days - " + self.currency + " " +  str(self.price)
 
 class Subscriptions(BaseModelMixin):
     user = models.ForeignKey(
@@ -120,7 +135,7 @@ class Subscriptions(BaseModelMixin):
         verbose_name=_("User"),
         null=True,
         on_delete=models.SET_NULL,
-        related_name="user",
+        related_name="user_subscription",
     )
     subscription_ticket = models.ForeignKey(
         to="tips.SubscriptionTicket",
@@ -139,11 +154,17 @@ class Subscriptions(BaseModelMixin):
 
     
     subscription_active = models.BooleanField(default=False)
+    
+    def remaining_days(self):
+        sub_ticket_days = self.subscription_ticket.days
+        sub_expiry_date = timedelta(days=sub_ticket_days) + self.date_added
+        return "Subscription expires on " + str(sub_expiry_date)
 
     def update_subscription_status(self):
         sub_ticket_days = self.subscription_ticket.days
         sub_expiry_date = timedelta(days=sub_ticket_days) + self.date_added 
-        sub_status = not (now().date() > sub_expiry_date)
+        expired = now().date()
+        sub_status = not (expired > sub_expiry_date)
         if self.subscription_active != sub_status:
             self.subscription_active = sub_status
             super().save()
@@ -153,6 +174,7 @@ class Subscriptions(BaseModelMixin):
     class meta:
         verbose_name = "Subscription"
         verbose_name_plural = "Subscriptions"
+        orderings = ['-data_added']
 
 class Settings(models.Model):
     key = models.CharField(max_length=20, blank=False, null=False)

@@ -1,35 +1,45 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<div>
-    <form action="">
-        {% for tipster in tipsters_list %}
-            <div>
-                <input type="checkbox" class="select" tipster_id="{{ tipster.id}}">
-                <img src="{{ tipster.country.flag }}" alt="">
-                <p>{{ tipster.country.name }}</p>
-                <p>{{ tipster.name }}</p>
-                <!-- <a href="{{ tipster.get_absolute_url }}">view more</a> -->
-            </div>
-        {% endfor %}
-    </form>
-    <div>
-        <h1>Discount</h1>
+{% include 'include/image_header.html' %}
+{% include 'include/toggles.html' %}
+<p class="font-bolded text-xl text-gray-600 my-2">Subscribe</p>
+<hr>
+<div class="md:grid grid-cols-3">
+    <div class="bg-gray-200 p-2 m-4 border-2 border-gray-300 rounded-lg">
+        <form action="">
+            {% for tipster in tipsters_list %}
+                <div class="flex mb-1">
+                    <input type="checkbox" class="select" tipster_id="{{ tipster.id}}">
+                    <p class="px-2">{{ tipster.name }}</p>
+                    <img  class="px-2 h-4 w-10" src="{{ tipster.country.flag }}" alt="">
+                    <!-- <p>{{ tipster.country.name }}</p> -->
+                </div>
+                <hr>
+            {% endfor %}
+        </form>
+    </div>
+    <div class="bg-gray-200 p-2 m-4 border-2 border-gray-300 rounded-lg">
+        <h1 class="font-bold text-xl">Discount</h1>
         <p>For each {{ settings.discount }} tipsters you will receive 1 for free.</p>
     </div>
-    <div>
-        <select name="types" id="types">
+    <div  class="bg-gray-200 p-2 m-4 border-2 border-gray-300 rounded-lg">
+        <p class="text-xl font-bold ">Period</p>
+        <select name="types"  class="bg-white my-2 "  id="types">
             {% for type in subscription_types %}
                 <option value="{{ type.id }}|{{ type.price }}">{{ type }}</option>
             {% endfor %}
         </select>
-        <div>
-            <p>Total: {{ settings.currency }} <span id="total">0</span></p>
-            <p>Selected tipsters: <span id="tipsters-count">0</span> - {{ settings.currency }} <span id="all-total">0</span></p>
-            <p>Free tipsters: <span id="free-tipsters">0</span> - {{ settings.currency }} <span id="discount-total"></span></p> 
+        <hr>
+        <div class="my-2">
+            <p class="my-1 text-xl font-bold  ">Total: {{ settings.currency }} <span id="total">0</span></p>
+            <p class="my-1">Selected tipsters: <span id="tipsters-count">0</span> - {{ settings.currency }} <span id="all-total">0</span></p>
+            <p class="my-1">Free tipsters: <span id="free-tipsters">0</span> - {{ settings.currency }} <span id="discount-total"></span></p> 
         </div>
-        <h4>Pay with PayPal</h4>
-        {{ form.render }}
+        <hr>
+        <div class="mt-6">
+            {{ form.render }}
+        </div>
         <!-- <button id="button" class="bg-{{ settings.theme }}-500 text-white px-2- px-1">Pay with {{ settings.payment }}</button> -->
     </div>
 </div>

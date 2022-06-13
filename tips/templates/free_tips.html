@@ -2,43 +2,45 @@
 {% load static %}
 {% block title %}Free Tips{% endblock %}
 <link rel="stylesheet" href="{% static 'flags/sprite.css' %}">
+{% block content %}
 <style>
     tbody tr:nth-child(odd) {
         background-color: #ffffff;
       }
       
       tbody tr:nth-child(even) {
-        background-color: #868686;
+        background-color: #e4e4e4;
       }
 </style>
-{% block content %}
     <div>
         {% include 'include/toggles.html' %}
         <hr>
         <div class="flex justify-between my-2">
             <p class="px-6 py-3 bg-{{settings.theme}}-500 text-white"><a href="{% if prev and free_tips %}{{ prev }}{% else %} javascript:void(0) {% endif %}">prev</a></p>
-            <p>{{ page_date }}</p>
+            <p class="text-xl mt-2 font-semibold">{{ page_date }}</p>
             <p class="px-6 py-3 bg-{{settings.theme}}-500 text-white"><a href="{% if next %}{{ next }}{% else %} javascript:void(0) {% endif %}">next</a></p>
         </div>
         <hr>
-        <table>
+        <table class="w-full my-4">
             <thead>
-                <th colspan="3"></th>
-                <th class="hidden md:block" ></th>
-                <th colspan="3" class="hidden md:block">Odds</th>
-                <th>Tips</th>
+                <tr>
+                    <th colspan="3">&nbsp;</th>
+                    <th class="hidden md:table-cell">&nbsp;</th>
+                    <th class="hidden md:table-cell text-md md:text-lg" colspan="3">Odds</th>
+                    <th class="text-md md:text-lg">Tip</th>
+                </tr>
             </thead>
             <tbody>
                 {% for tip in free_tips %}
                     <tr>
-                        <td><img src="{{ tip.0}}" alt=""></td>
-                        <td class="hidden md:inline-block">{{tip.1}}</td>
-                        <td>{{ tip.4 }}</td>
-                        <td>{{tip.2}}</td>
-                        <td class="hidden md:inline-block">{{tip.5}}</td>
-                        <td class="hidden md:inline-block">{{tip.6}}</td>
-                        <td class="hidden md:inline-block">{{tip.7}}</td>
-                        <td>{{tip.3}}</td>
+                        <td class="px-2 py-3"><img class="h-5 w-8 md:h-7 md:w-8"src="{{ tip.0}}" alt=""></td>
+                        <td class="hidden md:table-cell text-sm md:text-lg px-2">{{tip.1}}</td>
+                        <td class="text-sm md:text-lg px-2">{{ tip.4 }}</td>
+                        <td class="text-sm md:text-lg px-2">{{tip.2}}</td>
+                        <td class="hidden md:table-cell text-lg px-2">{{tip.5}}</td>
+                        <td class="hidden md:table-cell text-lg px-2">{{tip.6}}</td>
+                        <td class="hidden md:table-cell text-lg px-2">{{tip.7}}</td>
+                        <td class="text-sm md:text-lg px-2">{{tip.3}}</td>
                     </tr>
                   {% empty %}
             </tbody>

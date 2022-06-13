@@ -1,21 +1,48 @@
 {% extends "base.html" %}
 {% block title %}Select tips{% endblock %}
 {% block content %}
-    <p id="predictions-count">Total prediction selected is 0</p>
-    <form method="POST">
-        {% csrf_token %}
-        {% for tip in tips %}
-            <div>
-                <input type="checkbox" {% if tip.0 == 'True' %} checked {% endif %} class="select {% if tip.0 == 'True' %} checked {% endif %}" name="{{ tip.2 }}" value="{{ tip.2 }} {{ tip.3 }}" id="">
-                <img src="{{ tip.1 }}" alt="">
-                {{ tip.0 }}
-                <span>{{ tip.2 }}</span>
-                <span>{{tip.3}}</span>
-                <span>{{tip.4}}</span>
-            </div>
-        {% endfor %}
-        <button id="button">Okay</button>
-    </form>
+{% include 'include/image_header.html' %}
+{% include 'include/toggles.html' %}
+    <p id="predictions-count" class="font-semibold text-xl">Total prediction selected is 0</p>
+    <hr>
+    <p class="font-bold text-xl my-2">Select prediction</p>
+    <hr>
+    <div class="my-2">
+        <form method="POST">
+            {% csrf_token %}
+            <table class="w-full"> 
+                <thead>
+                    <tr>
+                        <th class=" py-2"></th>
+                        <th></th>
+                        <th>Time</th>
+                        <th>Match</th>
+                        <th>Odds</th>
+                        <th>Tips</th>
+                    </tr>
+                </thead>
+                <tbody> 
+                    {% for tip in tips %}
+                        {% if tip.4 != "-" and tip.4 %}
+                            <tr class="border-b-3 border-gray-600 my-2">
+                                <td class="px-2">
+                                    <input type="checkbox" {% if tip.0 == 'True' %} checked {% endif %} class="select {% if tip.0 == 'True' %} checked {% endif %}" name="{{ tip.2 }}" value="{{ tip.2 }} {{ tip.3 }}" id="">
+                                </td>
+                                <td class="px-2 py-2 text-center"><img class="h-4 w-6 " src="{{ tip.1 }}" alt=""></td>
+                                <td class="text-center">{{ tip.7 }}</td>
+                                <td class="text-center">{{ tip.2 }}</td>
+                                <td class="text-center">{{tip.3}}</td>
+                                <td class="text-center">{{tip.4}}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+                </table>
+                <br>
+                <br>
+                    <button id="button" class="w-full px-6 py-3 bg-{{settings.theme}}-900 text-white block">SELECT TIPS</button>
+        </form>
+    </div>
     <script>
     let total_predictions = $(".checked").length
     $('#button').attr({"disable": true})

@@ -1,40 +1,71 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Free Tips{% endblock %}
+{% block title %}Paid Tipsters{% endblock %}
 {% block content %}
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>
-            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
-            {{ message.tags }}
-            {{ message }}
-        </p>
-    {% endfor %}
-    </ul>
-    {% endif %}
-    {% if user.is_authenticated %}
-    <p>Welcome {{ user.username}}</p>
-    <p><a href="{% url 'logout' %}" class="">logout</a></p>
-    {% else %}
-    <form method="post" action="{% url 'login-view' %}">
-        {% csrf_token %}
-        {{ login.as_p }}
-        <input type="submit" value="Login">
-    </form>
-    <form method="post" action="{% url 'signup-view' %}">
-        {% csrf_token %}
-        {{ sign_up.as_p }}
-        <input type="submit" value="Save">
-    </form>
-    {% endif %}
-    {% for tipster in tipsters %}
-    <div>
-        <img src="{{ tipster.country.flag }}" alt="">
-        <p>{{ tipster.country.name }}</p>
-        <p>{{ tipster.name }}</p>
-        <a href="{% if user.is_authenticated %}{% url 'payment' %} {% else %}#{% endif %}" {% if user.is_anonymous %}onclick="notifyLogin()"{% endif %}>Subscribe</a>
-        <a href="{{ tipster.get_absolute_url }}">view more</a>
+    {% include 'include/flash.html' %}
+    {% include "include/form.html" %}
+    {% include "include/toggles.html" %}
+    <div class="md:grid grid-cols-3">
+        {% for tipster in tipsters %}
+            <div class="bg-gray-100 p-2 mx-2 my-2">
+                <div class="my-1">
+                    <div class="flex">
+                        <img class="h-4 mt-1" src="{{ tipster.country.flag }}" alt="">
+                        <p class="text-gray-900 ml-2">{{ tipster.country.name | upper  }}</p>
+                    </div>
+                    <p class="text-xl my-1">{{ tipster.name }}</p>            
+                </div>
+                    <hr>
+                <p class="text-center text-gray-600 font-bold my-2">Latest Results</p>
+                <div style='overflow:auto; height:300px;' class="my-2">
+                    {% for ticket in tipster.ticket_with_date.all|dictsortreversed:"date_added" %}
+                        <table class="w-full">
+                            <thead>
+                                <th colspan="2">Game</th>
+                                <th>Tip</th>
+                                <th>Odd</th>
+                            </thead>
+                                <tbody>
+                                    {% if today == ticket.date_added  %}
+                                    {% if tipster in user.user_subscription.last.tipsters.all and user.user_subscription.last.subscription_active %}
+                                        <p class="text-red-500 text-center my-2 ">{{ tipster.Tipsters.last.remaining_days}}</p> 
+                                        <p class="text-xl text-{{settings.theme}}-900 text-center my-3 font-bold">Today's Game Only for Subscribers</p>    
+                                        <p class="font-semibold text-center text-white bg-gray-800 px-3 py-2">{{ ticket.date_added }}</p>
+                                            {% for main_ticket in ticket.ticket.all %}    
+                                                <tr class="py-4"> 
+                                                        <td class="pr-2 text-center"><img class="" src="{{ main_ticket.club_image }}" alt=""></td>
+                                                        <td class="py-2 px-2 text-center">{{ main_ticket.team_name }}</td>
+                                                        <td class="px-1 text-center">{{ main_ticket.tips }}</td>
+                                                        <td class="px-2 text-center {% if main_ticket.played and main_ticket.success %} border-b-2 border-green-500 {% elif not main_ticket.played and main_ticket.postponed %} border-b-2 border-green-500 {% elif main_ticket.played  and not main_ticket.success  %} border-b-2 border-red-500 {% endif %}%">{{ main_ticket.game_odds }}</td>    
+                                                    </tr>
+                                            {% endfor %}    
+                                        {% endif %}
+                            
+                                    {% else %}
+                                        <p class="font-semibold text-center text-white bg-gray-800 px-3 py-2">{{ ticket.date_added }}</p>
+                                            {% for main_ticket in ticket.ticket.all %}    
+                                                <tr class="py-2"> 
+                                                        <td class="pr-2"><img class="" src="{{ main_ticket.club_image }}" alt=""></td>
+                                                        <td class="py-2 px-2">{{ main_ticket.team_name }}</td>
+                                                        <td class="px-1">{{ main_ticket.tips }}</td>
+                                                        <td class="px-2 {% if main_ticket.played and main_ticket.success %} border-b-2 border-green-500 {% elif not main_ticket.played and main_ticket.postponed %} border-b-2 border-green-500 {% elif main_ticket.played  and not main_ticket.success  %} border-b-2 border-red-500 {% endif %}%">{{ main_ticket.game_odds }}</td>    
+                                                    </tr>
+                                            {% endfor %}
+                                    {% endif %}
+                            </tbody>
+                        </table>
+                    {% endfor %}
+                </div>
+                <div class="my-2">
+                    {% for sub_ticket in all_sub_ticket %}
+                        <p class="text-center my-1 font-semibold text-lg ">{{ sub_ticket }}</p>
+                    {% endfor %}
+                </div>
+                <div class="flex">
+                    <a class="text-center px-6 py-3 bg-{{settings.theme}}-900 text-white w-full block mx-2" href="{% if user.is_authenticated %}{% url 'payment' %} {% else %}#{% endif %}" {% if user.is_anonymous %}onclick="notifyLogin()"{% endif %}>SUBSCRIBE</a>
+                    <a class="text-center px-6 py-3 bg-{{settings.theme}}-900 text-white w-full block mx-2" href="{{ tipster.get_absolute_url }}">VIEW RESULTS</a>
+                </div>
+            </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 {% endblock %}

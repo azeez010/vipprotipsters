@@ -1,0 +1,13 @@
+{% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="w-full block py-2 px-4 my-2 {% if message.tags == 'success' %}bg-green-300{% elif message.tags == 'error' %}bg-red-300{% else %}bg-yellow-300{% endif %}">
+                <p {% if message.tags %} class="{% if message.tags == 'success' %}text-green-800{% elif message.tags == 'error' %}text-red-800{% else %}text-yellow-800{% endif %}"{% endif %}>
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+                    {{ message.tags }}
+                    {{ message }}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
