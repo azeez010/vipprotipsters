@@ -62,8 +62,8 @@
                     {% endfor %}
                 </div>
                 <div class="flex">
-                    <a class="text-center px-6 py-3 bg-{{settings.theme}}-900 text-white w-full block mx-2" href="{% if user.is_authenticated %}{% url 'payment' %} {% else %}#{% endif %}" {% if user.is_anonymous %}onclick="notifyLogin()"{% endif %}>SUBSCRIBE</a>
-                    <a class="text-center px-6 py-3 bg-{{settings.theme}}-900 text-white w-full block mx-2" href="{{ tipster.get_absolute_url }}">VIEW RESULTS</a>
+                    <a class="text-center px-2 py-1 text-md md:text-lg md:px-6 md:py-3 bg-{{settings.theme}}-900 text-white w-full block mx-2" href="{% if user.is_authenticated %}{% url 'payment' %} {% else %}#{% endif %}" {% if user.is_anonymous %}onclick="notifyLogin()"{% endif %}>SUBSCRIBE</a>
+                    <a class="text-center px-2 py-1 text-md md:text-lg md:px-6 md:py-3 bg-{{settings.theme}}-900 text-white w-full block mx-2" href="{{ tipster.get_absolute_url }}">VIEW RESULTS</a>
                 </div>
             </div>
         {% endfor %}

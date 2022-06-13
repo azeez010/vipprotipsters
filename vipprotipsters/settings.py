@@ -141,9 +141,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/tipsters'
 
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/tipsters'
 
 PAYPAL_ACCESS = env.str("PAYPAL_ACCESS")
 CSV_STATIC_URL = str(BASE_DIR) + r'/static/csv/'
