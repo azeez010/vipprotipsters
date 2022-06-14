@@ -28,8 +28,8 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG_MODE")
 
-ALLOWED_HOSTS = ["127.0.0.1", "vipprotipsters.com", "www.vipprotipsters.com", "d600-105-112-177-192.eu.ngrok.io"]
-CSRF_TRUSTED_ORIGINS = ["https://vipprotipsters.com", "https://www.vipprotipsters.com", "https://d600-105-112-177-192.eu.ngrok.io"]
+ALLOWED_HOSTS = ["127.0.0.1", "vipprotipsters.com", "www.vipprotipsters.com", "b1a9-105-112-22-132.eu.ngrok.io"]
+CSRF_TRUSTED_ORIGINS = ["https://vipprotipsters.com", "https://www.vipprotipsters.com", "https://b1a9-105-112-22-132.eu.ngrok.io"]
 # Application definition
 
 AUTH_USER_MODEL = 'tips.User'
@@ -157,4 +157,4 @@ ADMIN_SITE_HEADER = "VIP TIPSTERS ADMIN"
 
 # _________________ PAYPAL ____________________
 PAYPAL_RECEIVER_EMAIL = env.str("PAYPAL_ACCESS")
-PAYPAL_TEST = env.bool("PAYPAL_TEST"),
+PAYPAL_TEST = False
