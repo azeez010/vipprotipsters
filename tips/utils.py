@@ -79,16 +79,12 @@ def generate_predictions():
     tipsters = models.Tipsters.objects.all()
     for tipster in tipsters:
         total_odds = 1 
+        # Delete all the added Tickets to override
+        models.Ticket.objects.filter(date_added=cur_date).delete()
         while total_odds < minimum_odds_float:
+            if total_odds > minimum_odds_float:
+                break
             ticket = random.choice(tickets)
             total_odds *= ticket.game_odds
             ticket_with_date, _  = models.TicketWithDate.objects.get_or_create(date_added=cur_date, tipsters=tipster)
             ticket_with_date.ticket.add(ticket)
-        print(total_odds)
-        # print()
-   
-# @commit_on_success
-# def lot_of_saves(queryset):
-#     for item in queryset:
-#         modify_item(item)
-#         item.save()
