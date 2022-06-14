@@ -34,9 +34,11 @@ def login_view(request):
 def signup_view(request):
     if request.method == "POST":
         user_sign_up = forms.SignUp(request.POST)
+        User = get_user_model()
         if user_sign_up.is_valid():
             user = user_sign_up.save()
             user.set_password(user.password)
+            user.save()
             messages.success(request, "Signup Successful")
             return redirect(reverse("paid"))
         else:
@@ -50,11 +52,10 @@ def change_password_view(request):
             User = get_user_model()
             user = User.objects.get(id=request.user.id)
             if user.check_password(user_sign_up.cleaned_data.get("password")):
-                print(user.password)
-                user.set_password(user_sign_up.cleaned_data.get("password"))
+                password = user_sign_up.cleaned_data.get("password")
+                user.set_password(password)
                 user.save()
                 update_session_auth_hash(request, user)
-                print(user.password)
                 
                 messages.success(request, "Password Changed Successfully")
             else:
