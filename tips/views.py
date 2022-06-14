@@ -113,7 +113,7 @@ def select_tips(request, *args, **kwargs):
                 "game_odds": d[4]
             }
             
-            if obj_data.get("game_odds") != "-":
+            if obj_data.get("game_odds") and obj_data.get("game_odds") != "-":
                 ticket = tickets.create(**obj_data)
                 ticket.save()  
 
