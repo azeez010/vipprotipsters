@@ -82,11 +82,13 @@ def generate_predictions():
         # Delete all the added Tickets to override
         ticket_with_date, _  = models.TicketWithDate.objects.get_or_create(date_added=cur_date, tipsters=tipster)
         ticket_with_date.ticket.clear()
-        
-        while total_odds < minimum_odds_float:
+        same = []
+        while True:
             if total_odds > minimum_odds_float:
                 break
             
             ticket = random.choice(tickets)
-            total_odds *= ticket.game_odds
-            ticket_with_date.ticket.add(ticket)
+            if ticket not in same:
+                total_odds *= ticket.game_odds
+                ticket_with_date.ticket.add(ticket)
+                same.append(ticket)
