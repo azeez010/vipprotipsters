@@ -72,7 +72,7 @@ class Ticket(BaseModelMixin):
     postponed = models.BooleanField(_("Was game cancelled or postponed"), default=False)
     
     class meta:
-        orderings = ['data_added']
+        orderings = ['date_added']
     
     def __str__(self):
             return self.team_name + " - " + str(self.game_odds)

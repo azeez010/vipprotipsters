@@ -104,7 +104,7 @@ def select_tips(request, *args, **kwargs):
                 line[0] = False
     
         tickets = models.Ticket.objects
-        tickets.filter(date_added=cur_date_time).delete()
+        tickets.filter(date_added=cur_date_time).all().delete()
         for d in games_to_select:        
             obj_data = {
                 "club_image": d[1],
@@ -112,7 +112,6 @@ def select_tips(request, *args, **kwargs):
                 "tips": d[3],
                 "game_odds": d[4]
             }
-            
             if obj_data.get("game_odds") and obj_data.get("game_odds") != "-":
                 ticket = tickets.create(**obj_data)
                 ticket.save()  

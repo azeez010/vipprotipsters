@@ -75,7 +75,7 @@ def generate_predictions():
 
     minimum_odds_float = float(minimum_odds)    
     cur_date = datetime.now().date()
-    tickets = models.Ticket.objects.all()
+    tickets = models.Ticket.objects.filter(date_added=cur_date).all()
     tipsters = models.Tipsters.objects.all()
     for tipster in tipsters:
         total_odds = 1 
@@ -83,8 +83,9 @@ def generate_predictions():
         ticket_with_date, _  = models.TicketWithDate.objects.get_or_create(date_added=cur_date, tipsters=tipster)
         ticket_with_date.ticket.clear()
         same = []
+        
         while True:
-            if total_odds > minimum_odds_float:
+            if (total_odds > minimum_odds_float) or (len(same) == len(tickets)):
                 break
             
             ticket = random.choice(tickets)
