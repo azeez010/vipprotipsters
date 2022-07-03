@@ -70,8 +70,8 @@ class Ticket(BaseModelMixin):
     success = models.BooleanField(_("Did Game success"), default=False)
     played = models.BooleanField(_("Has Game played"), default=False)
     postponed = models.BooleanField(_("Was game cancelled or postponed"), default=False)
-    occurence = models.IntegerField(blank=False, null=False, default=1) 
-    ticket_date_time = models.DateField(default=now)
+    occurence = models.IntegerField(blank=False, null=False, default=2) 
+    ticket_date_time = models.DateField(default=now, blank=False)
         
     class meta:
         orderings = ['date_added']
