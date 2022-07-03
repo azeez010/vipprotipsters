@@ -19,7 +19,7 @@
             <hr>
         <p class="text-center text-gray-600 font-bold my-2">Latest Results</p>
         <div  class="my-2">
-            {% for ticket in tipsters.ticket_with_date.all|dictsortreversed:"date_added" %}
+            {% for ticket in tipsters.ticket_with_date.all|dictsortreversed:"ticket_date_time" %}
                 <table class="w-full">
                     <thead>
                         <th colspan="2">Game</th>
@@ -39,7 +39,22 @@
                                                     <td class="px-1 text-center">{{ main_ticket.tips }}</td>
                                                     <td class="px-2 text-center {% if main_ticket.played and main_ticket.success %} border-b-2 border-green-500 {% elif not main_ticket.played and main_ticket.postponed %} border-b-2 border-green-500 {% elif main_ticket.played  and not main_ticket.success  %} border-b-2 border-red-500 {% endif %}%">{{ main_ticket.game_odds }}</td>    
                                                 </tr>
-                                        {% endfor %}    
+                                        {% endfor %}   
+                                    {% elif user.is_superuser%}
+                                            <p class="text-xl text-{{settings.theme}}-900 text-center my-3 font-bold">Today's Game Admin</p>    
+                                            <p class="font-semibold text-center text-white bg-gray-800 px-3 py-2">{{ ticket.ticket_date_time }}</p>
+                                                {% for main_ticket in ticket.ticket.all %}    
+                                                    <tr class="py-4"> 
+                                                            <td class="pr-2 text-center"><img class="" src="{{ main_ticket.club_image }}" alt=""></td>
+                                                            <td class="py-2 px-2 text-center">{{ main_ticket.team_name }}</td>
+                                                            <td class="px-1 text-center">{{ main_ticket.tips }}</td>
+                                                            <td class="px-2 text-center {% if main_ticket.played and main_ticket.success %} border-b-2 border-green-500 {% elif not main_ticket.played and main_ticket.postponed %} border-b-2 border-green-500 {% elif main_ticket.played  and not main_ticket.success  %} border-b-2 border-red-500 {% endif %}%">{{ main_ticket.game_odds }}</td>    
+                                                    </tr>
+                                                {% endfor %}   
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="4" class=" text-center  p-2 text-red-500">Subscribe to unlock</td>
+                                            </tr>
                                     {% endif %}
                             {% else %}
                                 <p class="font-semibold text-center text-white bg-gray-800 px-3 py-2">{{ ticket.ticket_date_time }}</p>

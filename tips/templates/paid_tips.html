@@ -18,7 +18,7 @@
                     <hr>
                 <p class="text-center text-gray-600 font-bold my-2">Latest Results</p>
                 <div style='overflow:auto; height:300px;' class="my-2">
-                    {% for ticket in tipster.ticket_with_date.all|dictsortreversed:"date_added" %}
+                    {% for ticket in tipster.ticket_with_date.all|dictsortreversed:"ticket_date_time" %}
                         <table class="w-full">
                             <thead>
                                 <th colspan="2">Game</th>
