@@ -3,13 +3,21 @@
 {% block content %}
 {% include 'include/image_header.html' %}
 {% include 'include/toggles.html' %}
+<div class="my-5 text-center">
+    {% if tomorrow %}
+        <a href="{% url 'select-tips' %}" class="px-6 py-3 my-4 bg-red-600 text-white ">Today prediction</a>
+    {% else %}
+        <a href="{% url 'select-tips' %}?tomorrow=1" class="px-6 py-3 my-4 bg-red-600 text-white ">Tomorrow prediction</a>
+    {% endif %}
+</div>
     <p id="predictions-count" class="font-semibold text-xl">Total prediction selected is 0</p>
     <hr>
-    <p class="font-bold text-xl my-2">Select prediction</p>
-    <hr>
+        <p class="font-bold text-xl my-2">Select prediction</p>
+        <hr>
     <div class="my-2">
         <form method="POST">
             {% csrf_token %}
+            {% if tomorrow %}<input type="hidden" name="tomorrow" value="true">{% endif %}
             <table class="w-full"> 
                 <thead>
                     <tr>
@@ -19,6 +27,7 @@
                         <th>Match</th>
                         <th>Odds</th>
                         <th>Tips</th>
+                        <th>Times</th>
                     </tr>
                 </thead>
                 <tbody> 
@@ -26,13 +35,15 @@
                         {% if tip.4 != "-" and tip.4 %}
                             <tr class="border-b-3 border-gray-600 my-2">
                                 <td class="px-2">
-                                    <input type="checkbox" {% if tip.0 == 'True' %} checked {% endif %} class="select {% if tip.0 == 'True' %} checked {% endif %}" name="{{ tip.2 }}" value="{{ tip.2 }} {{ tip.3 }}" id="">
+                                    <input type="checkbox" {% if tip.0 == 'True' %} checked {% endif %} class="select {% if tip.0 == 'True' %} checked {% endif %}" name="{{ tip.2 }}" value="{{ tip.2 }}|{{ tip.3 }}|{{ tip.4 }}|1" id="">
                                 </td>
                                 <td class="px-2 py-2 text-center"><img class="h-4 w-6 " src="{{ tip.1 }}" alt=""></td>
                                 <td class="text-center">{{ tip.7 }}</td>
-                                <td class="text-center">{{ tip.2 }}</td>
-                                <td class="text-center">{{tip.3}}</td>
-                                <td class="text-center">{{tip.4}}</td>
+                                <td class="text-center team_name">{{ tip.2 }}</td>
+                                <td class="text-center type">{{tip.3}}</td>
+                                <td class="text-center odds">{{tip.4}}</td>
+                                <td class><input type="number" class="placeholder-text-sm border-2 border-gray-400 px-1 occurence" placeholder="Occurence"></td>
+                                <td class="text-center text-blue-400 edit cursor-pointer">edit</td>
                             </tr>
                         {% endif %}
                     {% endfor %}
@@ -48,6 +59,37 @@
     $('#button').attr({"disable": true})
     $("#predictions-count").text(`Total prediction selected is ${total_predictions}`);
 
+
+    let select = document.getElementsByClassName("select")
+    let occurence = document.getElementsByClassName("occurence")
+    let edit = document.getElementsByClassName("edit")
+    let odds = document.getElementsByClassName("odds")
+    let type = document.getElementsByClassName("type")
+    let allowGameType = ["1", "X", "2", "Under", "Over", "No", "Yes"]
+    let toggleArray = []
+
+    for(let i = 0; i < select.length; i++){
+        occurence[i].addEventListener("keyup", function() {
+            let previousVal = select[i].value.split("|");
+            previousVal[previousVal.length - 1] = occurence[i].value;
+            select[i].value = previousVal.join("|")
+        });
+    }
+
+    for(let i = 0; i < select.length; i++){
+        select[i].addEventListener("change", function() {
+            if(this.checked) // if changed state is "CHECKED"
+            {
+                occurence[i].value = 1
+            }    
+            else
+            {
+                occurence[i].value = null     
+            }
+        });
+    }
+    
+    
     $('.select').on('change', function(){ // on change of state
         if(this.checked) // if changed state is "CHECKED"
         {
@@ -60,7 +102,7 @@
             updateCheckChanges(total_predictions);
         }
      })
-
+     
      function updateCheckChanges(total_predictions)
      {
         if(total_predictions > 0 )
@@ -69,5 +111,43 @@
         }
         $("#predictions-count").text(`Total prediction selected is ${total_predictions}`);
     }
-    </script>
+    
+    function editGames()
+    {
+        for(let i = 0; i < type.length; i++){
+            edit[i].addEventListener("click", function() {
+                if(toggleArray[i])
+                {
+                    let team_name = document.getElementsByClassName("team_name")
+                    let game_type = document.getElementById(`game_type${i}`)
+                    let odd_type = document.getElementById(`odd_type${i}`)
+                    if(allowGameType.includes(game_type.value))
+                    {
+                        let previousVal = select[i].value.split("|");
+                        previousVal = previousVal[previousVal.length - 1]
+                        let prepString =   `${team_name[i].innerText}|${game_type.value}|${odd_type.value}|${previousVal}`
+                        select[i].value = prepString
+                        toggleArray[i] = false
+                        type[i].innerHTML = game_type.value
+                        odds[i].innerHTML = odd_type.value
+                        edit[i].innerText = 'edit'
+                    }
+                    else
+                    {
+                        alert(`Only these values are allowed ${allowGameType.join(", ")}`)
+                    }
+                }
+                else
+                {
+                    type[i].innerHTML = `<input type="text" class="placeholder-text-sm border-2 border-gray-400 px-1 game_type" id="game_type${i}" placeholder="Game">`
+                    odds[i].innerHTML = `<input type="number" step="0.01" class="placeholder-text-sm border-2 border-gray-400 px-1 odds_type" id="odd_type${i}" placeholder="Odds">`
+                    
+                    toggleArray[i] = true    
+                    edit[i].innerText = 'save'
+                }
+            });
+        } 
+    }
+    editGames()
+</script>
 {% endblock %}

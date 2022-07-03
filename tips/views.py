@@ -14,7 +14,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-
+from paypal import standard
 
 def login_view(request):
     if request.method == 'POST':
@@ -88,37 +88,72 @@ def subscription_view(request):
 def select_tips(request, *args, **kwargs):
     template_name = "select_tips.html"
     cur_date_time = datetime.datetime.now()
-    
+    context = {}
+
     if request.method == "POST":
-        ls = list(request.POST.values())
+        ls = list(request.POST.keys())
+        is_tomorrow = request.POST.get("tomorrow")
+        if is_tomorrow:
+            one_day_diff = datetime.timedelta(days=1)
+            date_time = datetime.datetime.now()
+            next_pred = date_time + one_day_diff
+            cur_date_time = next_pred
+        
         folder = utils.get_folder("paid")
         file_name = f"{cur_date_time.date()}-paid.csv"
         csv = mixins.CSV.readCSV(folder, file_name)
         games_to_select = []
+        team_index = {}
         
         for line in csv:
-            if f"{line[2]} {line[3]}" in ls:
-                line[0] = True
-                games_to_select.append(line)
+            team_name = line[2]
+            if team_name in ls:
+                get_team_index = team_index.get(team_name)
+                if not get_team_index:
+                    team_index[team_name] = 0
+
+                t_i = team_index[team_name]
+                game_data = request.POST.getlist(team_name)
+                if t_i < len(game_data):
+                    _, type, odds, occurence = game_data[t_i].split("|")
+                    line[0] = True
+                    line[3] = type
+                    line[4] = odds
+                    games_to_select.append([line, occurence])
+                    team_index[team_name] += 1
             else:
                 line[0] = False
     
         tickets = models.Ticket.objects
-        tickets.filter(date_added=cur_date_time).all().delete()
-        for d in games_to_select:        
+        tickets.filter(ticket_date_time=cur_date_time).all().delete()
+        for data in games_to_select:        
+            d = data[0]
+            occurence = data[1]
             obj_data = {
                 "club_image": d[1],
                 "team_name": d[2],
                 "tips": d[3],
-                "game_odds": d[4]
+                "game_odds": d[4],
+                "occurence": occurence,
             }
             if obj_data.get("game_odds") and obj_data.get("game_odds") != "-":
-                ticket = tickets.create(**obj_data)
+                ticket = tickets.create(ticket_date_time=cur_date_time, **obj_data)
                 ticket.save()  
 
         mixins.CSV.addCsv(file_name, folder, csv)
-        utils.generate_predictions()
-        return redirect(reverse("select-tips"))
+        utils.generate_predictions(cur_date_time)
+        if is_tomorrow:
+            return redirect("/select-tips?tomorrow=1")
+        else:
+            return redirect(reverse("select-tips"))
+
+    # Get
+    tomorrow = request.GET.get("tomorrow")
+    if tomorrow:
+        one_day_diff = datetime.timedelta(days=1)
+        date_time = datetime.datetime.now()
+        cur_date_time = date_time + one_day_diff
+        context.update({"tomorrow": True})
 
     path = Path(settings.PAID_CSV_STATIC_URL + f"{cur_date_time.date()}-paid.csv")
     if path.exists():
@@ -127,7 +162,8 @@ def select_tips(request, *args, **kwargs):
         tips = mixins.CSV.readCSV(folder, file_name)
     else:
         tips = []
-    return render(request, template_name, {"tips": tips})
+    context.update({"tips": tips})
+    return render(request, template_name, context)
 
 def paid_view(request, *args, **kwargs):
     template_name = "paid_tips.html"
@@ -139,9 +175,13 @@ def paid_view(request, *args, **kwargs):
     all_sub_ticket = models.SubscriptionTicket.objects.all()
     login = forms.Login()
     today_date = datetime.datetime.now().date()
+    one_day_diff = datetime.timedelta(days=1)
+    date_time = datetime.datetime.now()
+    next_pred = date_time + one_day_diff
+    tomorrow_date = next_pred.date()  
     sub_ticket = models.Subscriptions.objects.filter(user_id=request.user.id).last()
     if sub_ticket: sub_ticket.update_subscription_status()
-    return render(request, template_name, {"today": today_date, "sign_up": sign_up, "all_sub_ticket": all_sub_ticket, "login": login, "change_password": change_password, "tipsters": tipsters })
+    return render(request, template_name, {"today": today_date, "tomorrow": tomorrow_date, "sign_up": sign_up, "all_sub_ticket": all_sub_ticket, "login": login, "change_password": change_password, "tipsters": tipsters })
 
             
 def freetips_view(request, *args, **kwargs):
@@ -218,10 +258,14 @@ class Tipster(DetailView):
         
         login = forms.Login()
         today_date = datetime.datetime.now().date()
+        one_day_diff = datetime.timedelta(days=1)
+        date_time = datetime.datetime.now()
+        next_pred = date_time + one_day_diff
+        tomorrow_date = next_pred.date()
         sub_ticket = models.Subscriptions.objects.filter(user_id=self.request.user.id).last()
         if sub_ticket: sub_ticket.update_subscription_status()
     
-        context = {"sign_up": sign_up, "today": today_date, "login": login, "change_password": change_password}
+        context = {"sign_up": sign_up, "today": today_date, "tomorrow": tomorrow_date, "login": login, "change_password": change_password}
         if self.object:
             context["object"] = self.object
             context_object_name = self.get_context_object_name(self.object)

@@ -70,12 +70,14 @@ class Ticket(BaseModelMixin):
     success = models.BooleanField(_("Did Game success"), default=False)
     played = models.BooleanField(_("Has Game played"), default=False)
     postponed = models.BooleanField(_("Was game cancelled or postponed"), default=False)
-    
+    occurence = models.IntegerField(blank=False, null=False) 
+    ticket_date_time = models.DateField()
+        
     class meta:
         orderings = ['date_added']
     
     def __str__(self):
-            return self.team_name + " - " + str(self.game_odds)
+            return self.team_name + " - " + str(self.game_odds) + " date added " + str(self.ticket_date_time)
 
 class TicketWithDate(BaseModelMixin):
     ticket = models.ManyToManyField(
@@ -92,6 +94,8 @@ class TicketWithDate(BaseModelMixin):
         on_delete=models.SET_NULL,
         related_name="ticket_with_date",
     )
+
+    ticket_date_time = models.DateField()
 
     class meta:
         orderings = ['data_added']

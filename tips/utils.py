@@ -65,8 +65,7 @@ def get_folder(category):
     
     return folder
 
-def generate_predictions():
-    cur_date = datetime.now()
+def generate_predictions(cur_date):
     minimum_odds = models.Settings.objects.filter(key="minimum_odds").first()
     if not minimum_odds:
         minimum_odds = settings.MINIMUM_ODDS
@@ -74,22 +73,35 @@ def generate_predictions():
         minimum_odds = minimum_odds.value
 
     minimum_odds_float = float(minimum_odds)    
-    cur_date = datetime.now().date()
-    tickets = models.Ticket.objects.filter(date_added=cur_date).all()
+    cur_date = cur_date.date()
+    tickets = models.Ticket.objects.filter(ticket_date_time=cur_date).all()
     tipsters = models.Tipsters.objects.all()
+    
+    prep_tickets = []
+    for ticket in tickets:
+        occurence = ticket.occurence
+        if len(tipsters) < occurence:
+            occurence = len(tipsters) 
+        prep_tickets.append([ticket, occurence])
+        
+    random.shuffle(prep_tickets)
+
     for tipster in tipsters:
         total_odds = 1 
         # Delete all the added Tickets to override
-        ticket_with_date, _  = models.TicketWithDate.objects.get_or_create(date_added=cur_date, tipsters=tipster)
+        try:
+            ticket_with_date, _  = models.TicketWithDate.objects.get_or_create(ticket_date_time=cur_date, tipsters=tipster)
+        except models.TicketWithDate.MultipleObjectsReturned:
+            ticket_with_date = models.TicketWithDate.objects.filter(ticket_date_time=cur_date, tipsters=tipster).first()
         ticket_with_date.ticket.clear()
-        same = []
         
-        while True:
-            if (total_odds > minimum_odds_float) or (len(same) == len(tickets)):
-                break
-            
-            ticket = random.choice(tickets)
-            if ticket not in same:
-                total_odds *= ticket.game_odds
+        for index, ticket_arr in enumerate(prep_tickets):
+            ticket, occurence = ticket_arr
+            if occurence > 0:
                 ticket_with_date.ticket.add(ticket)
-                same.append(ticket)
+                total_odds *= ticket.game_odds
+                occurence -= 1
+                prep_tickets[index] = [ticket, occurence]
+
+            if total_odds > minimum_odds_float:
+                break      

@@ -26,11 +26,11 @@
                                 <th>Odd</th>
                             </thead>
                                 <tbody>
-                                    {% if today == ticket.date_added  %}
+                                    {% if today == ticket.ticket_date_time  or tomorrow == ticket.ticket_date_time %}
                                         {% if tipster in user.user_subscription.last.tipsters.all and user.user_subscription.last.subscription_active %}
                                             <p class="text-red-500 text-center my-2 ">{{ tipster.Tipsters.last.remaining_days}}</p> 
                                             <p class="text-xl text-{{settings.theme}}-900 text-center my-3 font-bold">Today's Game Only for Subscribers</p>    
-                                            <p class="font-semibold text-center text-white bg-gray-800 px-3 py-2">{{ ticket.date_added }}</p>
+                                            <p class="font-semibold text-center text-white bg-gray-800 px-3 py-2">{{ ticket.ticket_date_time }}</p>
                                                 {% for main_ticket in ticket.ticket.all %}    
                                                     <tr class="py-4"> 
                                                             <td class="pr-2 text-center"><img class="" src="{{ main_ticket.club_image }}" alt=""></td>
@@ -41,7 +41,7 @@
                                                 {% endfor %}    
                                             {% elif user.is_superuser%}
                                                 <p class="text-xl text-{{settings.theme}}-900 text-center my-3 font-bold">Today's Game Admin</p>    
-                                                <p class="font-semibold text-center text-white bg-gray-800 px-3 py-2">{{ ticket.date_added }}</p>
+                                                <p class="font-semibold text-center text-white bg-gray-800 px-3 py-2">{{ ticket.ticket_date_time }}</p>
                                                     {% for main_ticket in ticket.ticket.all %}    
                                                         <tr class="py-4"> 
                                                                 <td class="pr-2 text-center"><img class="" src="{{ main_ticket.club_image }}" alt=""></td>
@@ -50,9 +50,14 @@
                                                                 <td class="px-2 text-center {% if main_ticket.played and main_ticket.success %} border-b-2 border-green-500 {% elif not main_ticket.played and main_ticket.postponed %} border-b-2 border-green-500 {% elif main_ticket.played  and not main_ticket.success  %} border-b-2 border-red-500 {% endif %}%">{{ main_ticket.game_odds }}</td>    
                                                         </tr>
                                                     {% endfor %}   
+                                            {% else %}
+                                            <tr>
+                                                <td colspan="4" class=" text-center  p-2 text-red-500">Subscribe to unlock</td>
+                                            </tr>
+
                                             {% endif %}
                                     {% else %}
-                                        <p class="font-semibold text-center text-white bg-gray-800 px-3 py-2">{{ ticket.date_added }}</p>
+                                        <p class="font-semibold text-center text-white bg-gray-800 px-3 py-2">{{ ticket.ticket_date_time }}</p>
                                             {% for main_ticket in ticket.ticket.all %}    
                                                 <tr class="py-2"> 
                                                         <td class="pr-2"><img class="" src="{{ main_ticket.club_image }}" alt=""></td>
