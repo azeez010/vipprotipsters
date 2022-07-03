@@ -59,8 +59,8 @@ class User(AbstractUser):
 
 
 class Ticket(BaseModelMixin):
-    club_image = models.URLField(max_length=500, blank=False, null=False) 
-    team_name = models.CharField(max_length=255, blank=False, null=False)
+    club_image = models.URLField(max_length=512, blank=False, null=False) 
+    team_name = models.CharField(max_length=256, blank=False, null=False)
     game_odds = models.FloatField(blank=False) 
     tips = models.CharField(_("Tips"),
         blank=False,
