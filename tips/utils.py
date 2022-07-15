@@ -67,12 +67,12 @@ def get_folder(category):
 
 def generate_predictions(cur_date):
     minimum_odds = models.Settings.objects.filter(key="minimum_odds").first()
-    if not minimum_odds:
-        minimum_odds = settings.MINIMUM_ODDS
-    else:
-        minimum_odds = minimum_odds.value
+    # if not minimum_odds:
+    #     minimum_odds = settings.MINIMUM_ODDS
+    # else:
+    #     minimum_odds = minimum_odds.value
 
-    minimum_odds_float = float(minimum_odds)    
+    # minimum_odds_float = float(minimum_odds)    
     cur_date = cur_date.date()
     tickets = models.Ticket.objects.filter(ticket_date_time=cur_date).all()
     tipsters = models.Tipsters.objects.all()
@@ -90,12 +90,16 @@ def generate_predictions(cur_date):
         total_odds = 1 
         # Delete all the added Tickets to override
         try:
-            ticket_with_date, _  = models.TicketWithDate.objects.get_or_create(ticket_date_time=cur_date, tipsters=tipster)
+            ticket_with_date, _ = models.TicketWithDate.objects.get_or_create(ticket_date_time=cur_date, tipsters=tipster)
         except models.TicketWithDate.MultipleObjectsReturned:
             ticket_with_date = models.TicketWithDate.objects.filter(ticket_date_time=cur_date, tipsters=tipster).first()
+        
         ticket_with_date.ticket.clear()
         
-        for index, ticket_arr in enumerate(prep_tickets):
+        # Shuffle the tickets before adding 
+        random.shuffle(prep_tickets)
+        random_games = random.randrange(4, 7)
+        for index, ticket_arr in enumerate(prep_tickets[:random_games]):
             ticket, occurence = ticket_arr
             if occurence > 0:
                 ticket_with_date.ticket.add(ticket)
@@ -103,5 +107,5 @@ def generate_predictions(cur_date):
                 occurence -= 1
                 prep_tickets[index] = [ticket, occurence]
 
-            if total_odds > minimum_odds_float:
-                break      
+            # if total_odds > minimum_odds_float:
+            #     break      

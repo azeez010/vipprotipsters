@@ -119,6 +119,8 @@ def select_tips(request, *args, **kwargs):
                     line[0] = True
                     line[3] = type
                     line[4] = odds
+                    # Rewrite the occurence to higher default value
+                    occurence = 7
                     games_to_select.append([line, occurence])
                     team_index[team_name] += 1
             else:
