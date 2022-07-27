@@ -78,11 +78,16 @@ def generate_predictions(cur_date):
     tipsters = models.Tipsters.objects.all()
     
     prep_tickets = []
+    name_occurence = {}
+    
     for ticket in tickets:
         occurence = ticket.occurence
+        name = ticket.team_name
+        name_occurence[name] = ticket.occurence
         if len(tipsters) < occurence:
-            occurence = len(tipsters) 
-        prep_tickets.append([ticket, occurence])
+            occurence = len(tipsters)
+            # [, occurence]
+        prep_tickets.append(ticket)
         
     random.shuffle(prep_tickets)
 
@@ -99,13 +104,17 @@ def generate_predictions(cur_date):
         # Shuffle the tickets before adding 
         random.shuffle(prep_tickets)
         random_games = random.randrange(4, 7)
-        for index, ticket_arr in enumerate(prep_tickets[:random_games]):
-            ticket, occurence = ticket_arr
+        for _, ticket in enumerate(prep_tickets[:random_games]):
+            # , occurence
+            # ticket = ticket_arr
+            occurence = name_occurence.get(ticket.name)
             if occurence > 0:
                 ticket_with_date.ticket.add(ticket)
                 total_odds *= ticket.game_odds
                 occurence -= 1
-                prep_tickets[index] = [ticket, occurence]
+                name_occurence[ticket.name] = occurence
+
+                # prep_tickets[index] = [ticket, occurence]
 
             # if total_odds > minimum_odds_float:
             #     break      

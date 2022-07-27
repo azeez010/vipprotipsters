@@ -15,7 +15,7 @@ def save_csv(request):
         category = request.POST.get("category")
         games = orjson.loads(games)
         utils.handle_uploaded_file(games, name, category)
-        utils.delete_outdate_csv(category)
+        # utils.delete_outdate_csv(category)
         return render(request, 'free_tips.html', {})
 
 #Route for the GitHub webhook
