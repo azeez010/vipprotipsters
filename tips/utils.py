@@ -107,7 +107,7 @@ def generate_predictions(cur_date):
         for _, ticket in enumerate(prep_tickets[:random_games]):
             # , occurence
             # ticket = ticket_arr
-            occurence = name_occurence.get(ticket.name)
+            occurence = name_occurence.get(ticket.team_name)
             if occurence > 0:
                 ticket_with_date.ticket.add(ticket)
                 total_odds *= ticket.game_odds
