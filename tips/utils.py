@@ -104,17 +104,15 @@ def generate_predictions(cur_date):
         # Shuffle the tickets before adding 
         random.shuffle(prep_tickets)
         random_games = random.randrange(4, 7)
+
+
+        present_tickets = []
         for _, ticket in enumerate(prep_tickets[:random_games]):
-            # , occurence
-            # ticket = ticket_arr
             occurence = name_occurence.get(ticket.team_name)
             if occurence > 0:
-                ticket_with_date.ticket.add(ticket)
-                total_odds *= ticket.game_odds
-                occurence -= 1
-                name_occurence[ticket.name] = occurence
-
-                # prep_tickets[index] = [ticket, occurence]
-
-            # if total_odds > minimum_odds_float:
-            #     break      
+                if ticket.team_name not in present_tickets:
+                    ticket_with_date.ticket.add(ticket)
+                    total_odds *= ticket.game_odds
+                    occurence -= 1
+                    name_occurence[ticket.team_name] = occurence
+                    present_tickets.append(ticket.team_name)

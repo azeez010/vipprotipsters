@@ -36,33 +36,79 @@ def git_update(request):
 
 @csrf_exempt
 def result(request, *args, **kwargs):
-    cur_date_time = datetime.datetime.now()
+    if datetime.datetime.now().hour > 6:
+        cur_date_time = datetime.datetime.now()
+    else:
+        today_date = datetime.datetime.now()
+        cur_date_time = today_date - datetime.timedelta(days=1) 
+
     if request.method == "POST":
         games = request.POST.get("games")
         games = orjson.loads(games)
         today_games = models.Ticket.objects.filter(date_added=cur_date_time).all()
-        team_names = {}
-        
-        for game in today_games:
-            team_names[f"{game.team_name}-{game.tips}"] = game 
+        prepare_result = {}
+
         games_with_result =  utils.prepare_forebet_csv(games)
         
         for game in games_with_result:
-            key = f"{game[2]}-{game[3]}"
-            if key in team_names.keys() and game[6]:
-                if game[5]:
-                    ticket = team_names.get(key)
-                    ticket.success = True
-                    ticket.played = True
-                    ticket.save()
-                else:
-                    ticket = team_names.get(key)
-                    ticket.played = True
-                    ticket.save() 
-            elif key in team_names.keys() and not game[6]:
-                ticket = team_names.get(key)
-                ticket.postponed = True
-                ticket.save()
-                
+            team_name = game[2]
+            scores = game[6]
+            prepare_result[team_name] = scores
+
+        for game in today_games:
+            scores = prepare_result[game.team_name]
+            _game_result = score_calc(scores, game.tips)    
+            if _game_result:
+                game.success = True
+                game.played = True
+                game.save()
+            else:
+                game.played = True
+                game.save()
 
     return render(request, 'free_tips.html', {})
+
+def score_calc(score_line, pred):
+    actual_score = score_line.split("-")
+    home_score = int(actual_score[0])
+    away_score = int(actual_score[1])
+    total_score = home_score + away_score
+    if pred == "1":
+        if home_score > away_score:
+            return True
+        else:
+            return False
+    elif pred == "X":
+        if home_score == away_score:
+            return True
+        else:
+            return False
+    elif pred == "2":
+        if away_score > home_score:
+            return True
+        else:
+            return False
+    
+    elif pred == "Over":
+        if total_score > 2:
+            return True
+        else:
+            return False
+    
+    elif pred == "Under":
+        if total_score < 3:
+            return True
+        else:
+            return False
+
+    elif pred == "Yes":
+        if home_score > 0 and away_score > 0:
+            return True
+        else:
+            return False
+        
+    elif pred == "No":
+        if home_score < 1 or away_score < 0:
+            return True
+        else:
+            return False
